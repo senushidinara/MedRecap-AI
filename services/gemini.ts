@@ -58,7 +58,7 @@ export const generateMedicalContent = async (topic: string): Promise<StudyGuide>
     5. Mnemonics: A specific memory aid.
     6. Matching Pairs: 3-4 pairs for active recall.
     
-    Also provide a brief, high-level overview of the topic.
+    Also provide a brief, high-level overview of the topic and 2 "Next Step" related topics for a predictive study pathway.
   `;
 
   return withRetry(async () => {
@@ -74,6 +74,11 @@ export const generateMedicalContent = async (topic: string): Promise<StudyGuide>
           properties: {
             topic: { type: Type.STRING },
             overview: { type: Type.STRING },
+            relatedTopics: { 
+              type: Type.ARRAY, 
+              items: { type: Type.STRING },
+              description: "Predictive Pathway: Suggest 2 related topics the student should study next."
+            },
             sections: {
               type: Type.ARRAY,
               items: {
@@ -111,7 +116,7 @@ export const generateMedicalContent = async (topic: string): Promise<StudyGuide>
               }
             }
           },
-          required: ["topic", "overview", "sections"]
+          required: ["topic", "overview", "sections", "relatedTopics"]
         }
       }
     });
@@ -124,15 +129,16 @@ export const generateMedicalContent = async (topic: string): Promise<StudyGuide>
   });
 };
 
-export const generateQuizQuestions = async (topic: string): Promise<QuizSession> => {
+export const generateQuizQuestions = async (topic: string, difficulty: 'Easy' | 'Medium' | 'Hard' = 'Medium'): Promise<QuizSession> => {
   const ai = getAiClient();
   
   const prompt = `Generate 5 USMLE Step 1/Step 2 CK style clinical vignette questions regarding: ${topic}. 
+  Difficulty Level: ${difficulty}.
   
   Focus on:
   1. Clinical anatomy correlations.
   2. Differentiating similar pathologies.
-  3. Second/Third-order reasoning.
+  3. ${difficulty === 'Hard' ? 'Third-order reasoning and obscure presentations' : 'Foundational concepts'}.
   `;
 
   return withRetry(async () => {

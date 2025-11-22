@@ -9,27 +9,27 @@
 
 ### 1. 🤖 AI for Healthcare
 MedRecap leverages **Gemini 2.5 Flash** and **Imagen** to automate the creation of high-yield medical study materials.
-*   **Intelligent Curation**: Instantly bridges complex anatomy with clinical pathology.
-*   **Visual Generation**: Creates diagrams and flowcharts on demand, saving hours of manual searching.
-*   **Automated Reasoning**: Generates "second-order" clinical vignette questions that mimic actual board exams (USMLE), ensuring doctors are prepared for real-world diagnostic challenges.
+*   **Predictive Study Pathways**: Uses AI to analyze your progress and suggest the next logical topic to study (e.g., "After Circle of Willis, study Stroke Syndromes").
+*   **Smart Difficulty**: Quiz difficulty adapts (Easy/Medium/Hard) to challenge the student appropriately.
+*   **Automated Reasoning**: Generates "second-order" clinical vignette questions that mimic actual board exams (USMLE).
 
 ### 2. 🧠 Mental Health & Wellness (Burnout Prevention)
 Medical education is stressful. We designed MedRecap to reduce cognitive load and anxiety.
-*   **Zen Mode 🧘**: A distraction-free reading environment that hides clutter and uses calming colors to lower visual stress during long study sessions.
-*   **Gamification**: Matching games and interactive quizzes turn rote memorization into active play, increasing dopamine and reducing the "chore" of studying.
-*   **Efficient Workflows**: By summarizing "High Yield" facts instantly, we help students learn faster and sleep more.
+*   **Mental Fatigue Tracker**: Built-in "Mood Check" on the dashboard. If you report high stress, the app suggests a quick breathing exercise.
+*   **Zen Mode 🧘**: A distraction-free reading environment that hides clutter and uses calming colors to lower visual stress.
+*   **Gamification**: Earn points (XP) and maintain streaks to turn studying into a rewarding habit, boosting dopamine and motivation.
 
 ### 3. ♿ Accessibility & Patient Support
 We believe medical education should be accessible to everyone.
-*   **Text-to-Speech (TTS) 🔊**: Built-in AI audio summaries (powered by `gemini-2.5-flash-preview-tts`) allow auditory learners and those with visual impairments to consume content effectively.
+*   **Text-to-Speech (TTS) 🔊**: Built-in AI audio summaries and Quiz Question reading allow auditory learners to consume content effectively.
+*   **High Contrast & Large Text**: Dedicated settings for visual accessibility.
 *   **Multi-Modal Learning**: Combines text, audio, generated images, and interactive sketches to support diverse learning styles (Visual, Auditory, Kinesthetic).
-*   **Simplified UI**: High contrast, large typography, and clear navigation ensure usability for all ages and abilities.
 
 ### 4. 🌍 Public Health & Community Impact
 Better trained doctors mean better patient outcomes.
-*   **Knowledge Sharing 🤝**: One-click sharing of topics and summaries facilitates peer-to-peer learning and mentorship.
-*   **Scalability**: As a web-based platform, this tool can be deployed globally to resource-constrained settings, providing top-tier medical education aids where textbooks are scarce.
-*   **Up-to-Date Info**: Integrated Google Search grounding ensures students aren't learning from outdated static text, but have access to the latest clinical guidelines.
+*   **Offline Ready Design**: The UI is optimized to work well on mobile devices in low-bandwidth areas (simulated offline capabilities).
+*   **Global Guidelines**: Integrated links to global medical resources (WHO, PubMed) ensure students learn standardized care.
+*   **Knowledge Sharing 🤝**: One-click sharing of topics facilitates peer-to-peer learning.
 
 ---
 
@@ -48,13 +48,14 @@ graph TD
         Service -->|Audio Generation| TTS[Gemini 2.5 TTS]
     end
     
-    Flash -->|JSON Study Guide| UI
+    Flash -->|JSON Study Guide + Predictive Pathway| UI
     Imagen -->|Anatomy Diagrams| UI
     TTS -->|Audio Summary| UI
     
     UI -->|Render| Guide[Study View]
     Guide -->|Toggle| Zen[Zen Mode]
-    Guide -->|Play| Audio[Audio Player]
+    Guide -->|Check| Mood[Mood Tracker]
+    Guide -->|Play| Quiz[Adaptive Quiz]
 ```
 
 ### 🛠️ Tech Stack
@@ -69,9 +70,9 @@ graph TD
 
 ## 🚀 How to Use
 
-1.  **Search**: Enter any medical topic (e.g., "Circle of Willis").
-2.  **Listen**: Click the **Listen** button to hear an AI-narrated summary while on the go.
-3.  **Focus**: Toggle **Zen Mode** (top right) to block out distractions.
-4.  **Visualize**: Generate anatomical diagrams or sketch your own notes.
-5.  **Share**: Use the Share button to send the summary to study groups.
-6.  **Quiz**: Test your knowledge with AI-generated clinical vignettes.
+1.  **Check In**: Use the Mood Tracker on the dashboard to assess your focus.
+2.  **Search**: Enter any medical topic (e.g., "Circle of Willis").
+3.  **Listen**: Click the **Listen** button to hear an AI-narrated summary.
+4.  **Focus**: Toggle **Zen Mode** or **High Contrast** via Settings.
+5.  **Quiz**: Select "Hard" difficulty to test your clinical reasoning.
+6.  **Track**: Watch your XP and Streaks grow on the dashboard.

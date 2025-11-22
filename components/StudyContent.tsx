@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { StudyGuide } from '../types';
-import { BookOpen, Activity, Brain, GraduationCap, Image as ImageIcon, Eye, EyeOff, CheckCircle, Play, PenTool, Volume2, Share2, Moon, Sun, Maximize2, Minimize2, Loader2 } from 'lucide-react';
+import { StudyGuide, AppSettings } from '../types';
+import { BookOpen, Activity, Brain, GraduationCap, Image as ImageIcon, Eye, EyeOff, CheckCircle, Play, PenTool, Volume2, Share2, Moon, Sun, Maximize2, Minimize2, Loader2, Globe, ArrowRightCircle } from 'lucide-react';
 import { generateAnatomyImage, generateSpeech } from '../services/gemini';
 import MatchingGame from './MatchingGame';
 import DrawingBoard from './DrawingBoard';
@@ -9,20 +9,22 @@ import MermaidDiagram from './MermaidDiagram';
 
 interface StudyContentProps {
   data: StudyGuide;
-  onStartQuiz: () => void;
+  onStartQuiz: (difficulty: 'Easy'|'Medium'|'Hard') => void;
+  settings: AppSettings;
+  onNextTopic: (topic: string) => void;
 }
 
-const StudyContent: React.FC<StudyContentProps> = ({ data, onStartQuiz }) => {
+const StudyContent: React.FC<StudyContentProps> = ({ data, onStartQuiz, settings, onNextTopic }) => {
   const [generatingImageFor, setGeneratingImageFor] = useState<string | null>(null);
   const [generatedImages, setGeneratedImages] = useState<Record<string, string>>({});
   const [hiddenImages, setHiddenImages] = useState<Record<string, boolean>>({});
   const [imageErrors, setImageErrors] = useState<Record<string, string>>({});
   const [visualTabs, setVisualTabs] = useState<Record<string, 'ai' | 'draw'>>({});
   
-  // New Features State
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [isAudioLoading, setIsAudioLoading] = useState(false);
   const [zenMode, setZenMode] = useState(false);
+  const [showQuizPrompt, setShowQuizPrompt] = useState(false);
   
   // Audio Context Refs
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -41,7 +43,6 @@ const StudyContent: React.FC<StudyContentProps> = ({ data, onStartQuiz }) => {
 
   const handlePlaySummary = async () => {
     if (isPlayingAudio) {
-      // Stop playback
       if (audioSourceRef.current) {
         audioSourceRef.current.stop();
         audioSourceRef.current = null;
@@ -61,7 +62,6 @@ const StudyContent: React.FC<StudyContentProps> = ({ data, onStartQuiz }) => {
 
       const audioBytes = decodeBase64(base64Audio);
       
-      // PCM decoding for 24kHz mono (standard for Gemini TTS)
       const dataInt16 = new Int16Array(audioBytes.buffer);
       const frameCount = dataInt16.length;
       const audioBuffer = audioContextRef.current.createBuffer(1, frameCount, 24000);
@@ -123,7 +123,6 @@ const StudyContent: React.FC<StudyContentProps> = ({ data, onStartQuiz }) => {
     setVisualTabs(prev => ({ ...prev, [sectionTitle]: tab }));
   };
 
-  // Cleanup audio on unmount
   useEffect(() => {
     return () => {
       if (audioSourceRef.current) audioSourceRef.current.stop();
@@ -132,16 +131,15 @@ const StudyContent: React.FC<StudyContentProps> = ({ data, onStartQuiz }) => {
   }, []);
 
   return (
-    <div className={`transition-all duration-500 ${zenMode ? 'fixed inset-0 z-50 bg-slate-50 overflow-y-auto' : 'relative'}`}>
+    <div className={`transition-all duration-500 ${zenMode ? 'fixed inset-0 z-50 bg-slate-50 overflow-y-auto' : 'relative'} ${settings.highContrast ? 'text-black' : ''}`}>
       
       <div className={`mx-auto px-4 py-8 pb-40 relative ${zenMode ? 'max-w-4xl mt-8' : 'max-w-5xl'}`}>
         
-        {/* Utility Bar - Always visible and prominent */}
+        {/* Utility Bar */}
         <div className="flex justify-end space-x-3 mb-6 sticky top-4 z-40">
            <button 
              onClick={handleShare}
              className="flex items-center space-x-2 px-4 py-2 bg-white text-slate-600 rounded-full hover:bg-blue-50 hover:text-blue-600 shadow-md border border-slate-200 transition-all font-medium text-sm"
-             title="Share with Peers (Public Health)"
            >
              <Share2 className="w-4 h-4" />
              <span>Share</span>
@@ -149,7 +147,6 @@ const StudyContent: React.FC<StudyContentProps> = ({ data, onStartQuiz }) => {
            <button 
              onClick={() => setZenMode(!zenMode)}
              className={`flex items-center space-x-2 px-4 py-2 rounded-full shadow-md border transition-all font-medium text-sm ${zenMode ? 'bg-teal-600 text-white border-teal-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-emerald-50 hover:text-emerald-600'}`}
-             title="Toggle Zen Mode (Mental Wellness)"
            >
              {zenMode ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
              <span>{zenMode ? 'Exit Zen' : 'Zen Mode'}</span>
@@ -164,11 +161,11 @@ const StudyContent: React.FC<StudyContentProps> = ({ data, onStartQuiz }) => {
               <span>Clinical Anatomy Recap</span>
             </div>
           )}
-          <h1 className="text-4xl sm:text-6xl font-extrabold text-slate-900 mb-6 tracking-tight">{data.topic}</h1>
+          <h1 className="text-4xl sm:text-6xl font-extrabold mb-6 tracking-tight">{data.topic}</h1>
           
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm border-l-4 border-l-teal-500 relative overflow-hidden">
+          <div className={`p-6 rounded-2xl border shadow-sm border-l-4 border-l-teal-500 relative overflow-hidden ${settings.highContrast ? 'bg-white border-black' : 'bg-white border-slate-200'}`}>
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-4 gap-4">
-              <h3 className="text-lg font-semibold text-slate-800 flex items-center">
+              <h3 className="text-lg font-semibold flex items-center">
                 <BookOpen className="w-5 h-5 mr-2 text-teal-600" />
                 Quick Overview
               </h3>
@@ -178,9 +175,8 @@ const StudyContent: React.FC<StudyContentProps> = ({ data, onStartQuiz }) => {
                 className={`flex items-center justify-center space-x-2 px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-sm ${
                   isPlayingAudio 
                     ? 'bg-rose-100 text-rose-700 ring-2 ring-rose-200 animate-pulse' 
-                    : 'bg-slate-900 text-white hover:bg-slate-800'
+                    : settings.highContrast ? 'bg-black text-white' : 'bg-slate-900 text-white hover:bg-slate-800'
                 }`}
-                title="Accessibility: Listen to Overview"
               >
                 {isAudioLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -190,7 +186,7 @@ const StudyContent: React.FC<StudyContentProps> = ({ data, onStartQuiz }) => {
                 <span>{isPlayingAudio ? 'Stop Audio' : 'Listen to Summary'}</span>
               </button>
             </div>
-            <p className="text-slate-600 leading-relaxed text-lg">{data.overview}</p>
+            <p className="leading-relaxed text-lg">{data.overview}</p>
           </div>
         </div>
 
@@ -202,17 +198,17 @@ const StudyContent: React.FC<StudyContentProps> = ({ data, onStartQuiz }) => {
             return (
               <div key={idx} className="relative group">
                 <div className="flex items-center mb-6">
-                  <div className="flex items-center justify-center w-12 h-12 bg-slate-900 text-white rounded-2xl font-bold mr-4 text-xl shadow-lg">
+                  <div className={`flex items-center justify-center w-12 h-12 rounded-2xl font-bold mr-4 text-xl shadow-lg ${settings.highContrast ? 'bg-black text-white' : 'bg-slate-900 text-white'}`}>
                     {idx + 1}
                   </div>
-                  <h2 className="text-3xl font-bold text-slate-800">{section.title}</h2>
+                  <h2 className="text-3xl font-bold">{section.title}</h2>
                 </div>
 
                 {/* Content Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                   {/* Foundational Card */}
                   <div className="flex flex-col h-full space-y-4">
-                    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col flex-grow">
+                    <div className={`rounded-xl border overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col flex-grow ${settings.highContrast ? 'border-black' : 'bg-white border-slate-200'}`}>
                       <div className="bg-slate-50 px-6 py-4 border-b border-slate-100 flex items-center">
                         <div className="p-1.5 bg-blue-100 rounded-lg mr-3">
                           <GraduationCap className="w-5 h-5 text-blue-600" />
@@ -222,7 +218,7 @@ const StudyContent: React.FC<StudyContentProps> = ({ data, onStartQuiz }) => {
                           <p className="text-xs text-slate-500 font-medium uppercase tracking-wide">Year 1 Basis</p>
                         </div>
                       </div>
-                      <div className="p-6 text-slate-700 leading-relaxed flex-grow prose prose-sm max-w-none whitespace-pre-wrap">
+                      <div className="p-6 leading-relaxed flex-grow prose prose-sm max-w-none whitespace-pre-wrap">
                         {section.foundational}
                       </div>
                     </div>
@@ -234,7 +230,7 @@ const StudyContent: React.FC<StudyContentProps> = ({ data, onStartQuiz }) => {
                   </div>
 
                   {/* Clinical Card */}
-                  <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col h-full">
+                  <div className={`rounded-xl border overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col h-full ${settings.highContrast ? 'border-black' : 'bg-white border-slate-200'}`}>
                     <div className="bg-slate-50 px-6 py-4 border-b border-slate-100 flex items-center">
                       <div className="p-1.5 bg-rose-100 rounded-lg mr-3">
                         <Activity className="w-5 h-5 text-rose-600" />
@@ -244,7 +240,7 @@ const StudyContent: React.FC<StudyContentProps> = ({ data, onStartQuiz }) => {
                         <p className="text-xs text-slate-500 font-medium uppercase tracking-wide">Year 3 Pathology</p>
                       </div>
                     </div>
-                    <div className="p-6 text-slate-700 leading-relaxed flex-grow bg-rose-50/10 border-t border-dashed border-rose-100 whitespace-pre-wrap">
+                    <div className="p-6 leading-relaxed flex-grow bg-rose-50/10 border-t border-dashed border-rose-100 whitespace-pre-wrap">
                       {section.clinical}
                     </div>
                   </div>
@@ -257,7 +253,7 @@ const StudyContent: React.FC<StudyContentProps> = ({ data, onStartQuiz }) => {
                   <div className="md:col-span-7 space-y-6">
                      {/* Matching Game */}
                      {section.matchingPairs && section.matchingPairs.length > 0 && (
-                       <MatchingGame pairs={section.matchingPairs} />
+                       <MatchingGame pairs={section.matchingPairs} settings={settings} />
                      )}
 
                      {/* Key Points */}
@@ -349,7 +345,6 @@ const StudyContent: React.FC<StudyContentProps> = ({ data, onStartQuiz }) => {
                                 />
                               </div>
                               
-                              {/* Overlay controls */}
                               <div className="absolute bottom-3 right-3 flex space-x-2">
                                  <button 
                                    onClick={() => toggleImageVisibility(section.title)}
@@ -359,14 +354,6 @@ const StudyContent: React.FC<StudyContentProps> = ({ data, onStartQuiz }) => {
                                     {hiddenImages[section.title] ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                                  </button>
                               </div>
-
-                              {hiddenImages[section.title] && (
-                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                   <span className="bg-slate-900/70 text-white px-4 py-2 rounded-lg font-medium backdrop-blur-md">
-                                     Can you visualize it?
-                                   </span>
-                                </div>
-                              )}
                             </div>
                           )}
                           
@@ -387,25 +374,69 @@ const StudyContent: React.FC<StudyContentProps> = ({ data, onStartQuiz }) => {
                   </div>
                 </div>
 
-                {/* Divider */}
                 {idx < data.sections.length - 1 && (
                    <div className="w-full h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent my-12"></div>
                 )}
               </div>
             );
           })}
+
+          {/* Public Health & Global Resources */}
+          <div className="bg-blue-50 border border-blue-100 rounded-2xl p-6 mt-12">
+              <div className="flex items-center mb-4">
+                  <Globe className="w-6 h-6 text-blue-600 mr-2" />
+                  <h3 className="font-bold text-blue-900">Global Medical Resources</h3>
+              </div>
+              <p className="text-sm text-blue-800 mb-4">
+                 Access standardized clinical guidelines to ensure your knowledge applies worldwide.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                 <a href="#" className="px-3 py-2 bg-white text-blue-600 rounded-lg text-xs font-bold border border-blue-200 hover:bg-blue-50">WHO Guidelines</a>
+                 <a href="#" className="px-3 py-2 bg-white text-blue-600 rounded-lg text-xs font-bold border border-blue-200 hover:bg-blue-50">Medscape Reference</a>
+                 <a href="#" className="px-3 py-2 bg-white text-blue-600 rounded-lg text-xs font-bold border border-blue-200 hover:bg-blue-50">PubMed</a>
+              </div>
+          </div>
+
+          {/* Predictive Pathway Suggestion */}
+          {data.relatedTopics && data.relatedTopics.length > 0 && (
+             <div className="mt-12 text-center">
+                <h4 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Up Next: Smart Recommendations</h4>
+                <div className="flex flex-col sm:flex-row justify-center gap-4">
+                   {data.relatedTopics.map((topic, i) => (
+                      <button 
+                        key={i}
+                        onClick={() => onNextTopic(topic)}
+                        className="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-xl hover:border-teal-400 hover:shadow-md transition-all group text-left w-full sm:w-auto min-w-[250px]"
+                      >
+                         <span className="font-medium text-slate-700">{topic}</span>
+                         <ArrowRightCircle className="w-5 h-5 text-slate-300 group-hover:text-teal-500 transition-colors" />
+                      </button>
+                   ))}
+                </div>
+             </div>
+          )}
+
         </div>
 
         {/* Sticky Footer for Quiz */}
         {!zenMode && (
           <div className="fixed bottom-6 left-0 right-0 flex justify-center z-30 px-4 pointer-events-none">
-            <button
-              onClick={onStartQuiz}
-              className="pointer-events-auto bg-slate-900 text-white shadow-2xl hover:bg-slate-800 hover:scale-105 active:scale-95 transition-all duration-300 rounded-2xl px-8 py-4 flex items-center font-bold text-lg border border-slate-700"
-            >
-              <Play className="w-5 h-5 mr-2 fill-current" />
-              I'm Ready for the Quiz
-            </button>
+            <div className="pointer-events-auto flex flex-col items-center space-y-2">
+               {showQuizPrompt && (
+                 <div className="bg-white border border-slate-200 shadow-xl rounded-xl p-4 animate-in slide-in-from-bottom-5 mb-2 flex space-x-2">
+                    <button onClick={() => onStartQuiz('Easy')} className="px-4 py-2 bg-green-100 text-green-800 rounded-lg text-sm font-bold hover:bg-green-200">Easy</button>
+                    <button onClick={() => onStartQuiz('Medium')} className="px-4 py-2 bg-yellow-100 text-yellow-800 rounded-lg text-sm font-bold hover:bg-yellow-200">Medium</button>
+                    <button onClick={() => onStartQuiz('Hard')} className="px-4 py-2 bg-red-100 text-red-800 rounded-lg text-sm font-bold hover:bg-red-200">Hard</button>
+                 </div>
+               )}
+               <button
+                onClick={() => setShowQuizPrompt(!showQuizPrompt)}
+                className={`shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 rounded-2xl px-8 py-4 flex items-center font-bold text-lg border ${settings.highContrast ? 'bg-black text-white border-white' : 'bg-slate-900 text-white hover:bg-slate-800 border-slate-700'}`}
+              >
+                <Play className="w-5 h-5 mr-2 fill-current" />
+                Start Smart Quiz
+              </button>
+            </div>
           </div>
         )}
 

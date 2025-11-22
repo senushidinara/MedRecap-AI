@@ -23,6 +23,7 @@ export interface StudyGuide {
   topic: string;
   overview: string;
   sections: ClinicalSection[];
+  relatedTopics: string[]; // Predictive Study Pathway: What to learn next
 }
 
 export interface QuizQuestion {
@@ -39,4 +40,17 @@ export interface QuizSession {
 export interface GeneratedImage {
   url: string;
   prompt: string;
+}
+
+export interface UserStats {
+  points: number;
+  streakDays: number;
+  topicsMastered: number;
+  lastStudyDate: string; // ISO string
+  moodScore?: number; // 1-5 for stress tracking
+}
+
+export interface AppSettings {
+  highContrast: boolean;
+  largeText: boolean;
 }
