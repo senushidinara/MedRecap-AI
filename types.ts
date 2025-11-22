@@ -13,6 +13,7 @@ export interface ClinicalSection {
   title: string;
   foundational: string; // The "First Year" content (Anatomy/Physio)
   clinical: string;     // The "Third Year" content (Pathology/Application)
+  mermaidChart: string; // Mermaid.js graph syntax for visual flow
   keyPoints: string[];
   mnemonics: string[];  // Memory aids for retention
   matchingPairs: MatchingPair[]; // For the matching mini-game

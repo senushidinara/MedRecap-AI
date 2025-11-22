@@ -5,46 +5,35 @@
 
 ---
 
-## ✨ Features
+## 🌟 Core Benefits
 
-<details>
-<summary><strong>🧠 AI-Powered Study Guides</strong></summary>
+### 1. 🤖 AI for Healthcare
+MedRecap leverages **Gemini 2.5 Flash** and **Imagen** to automate the creation of high-yield medical study materials.
+*   **Intelligent Curation**: Instantly bridges complex anatomy with clinical pathology.
+*   **Visual Generation**: Creates diagrams and flowcharts on demand, saving hours of manual searching.
+*   **Automated Reasoning**: Generates "second-order" clinical vignette questions that mimic actual board exams (USMLE), ensuring doctors are prepared for real-world diagnostic challenges.
 
-*   **Generative Curriculum**: Instantly creates structured study guides for *any* medical topic.
-*   **Dual-View Learning**:
-    *   📘 **Foundational**: Anatomy, Embryology, Physiology, and Surface Landmarks.
-    *   🏥 **Clinical**: Pathology, Surgical Landmarks, and Procedural Relevance.
-*   **Surface Anatomy Focus**: Specifically optimized to include physical exam landmarks (e.g., auscultation points, vertebral levels).
-</details>
+### 2. 🧠 Mental Health & Wellness (Burnout Prevention)
+Medical education is stressful. We designed MedRecap to reduce cognitive load and anxiety.
+*   **Zen Mode 🧘**: A distraction-free reading environment that hides clutter and uses calming colors to lower visual stress during long study sessions.
+*   **Gamification**: Matching games and interactive quizzes turn rote memorization into active play, increasing dopamine and reducing the "chore" of studying.
+*   **Efficient Workflows**: By summarizing "High Yield" facts instantly, we help students learn faster and sleep more.
 
-<details>
-<summary><strong>🎮 Active Recall Games</strong></summary>
+### 3. ♿ Accessibility & Patient Support
+We believe medical education should be accessible to everyone.
+*   **Text-to-Speech (TTS) 🔊**: Built-in AI audio summaries (powered by `gemini-2.5-flash-preview-tts`) allow auditory learners and those with visual impairments to consume content effectively.
+*   **Multi-Modal Learning**: Combines text, audio, generated images, and interactive sketches to support diverse learning styles (Visual, Auditory, Kinesthetic).
+*   **Simplified UI**: High contrast, large typography, and clear navigation ensure usability for all ages and abilities.
 
-*   **Matching Game**: Interactive tile-matching mini-game generated for every section. Matches terms to definitions (e.g., Structure ↔ Function) to reinforce memory.
-*   **Visual Recall**: Generates anatomical diagrams using **Gemini 2.5 Flash Image**. Includes a **Hide/Reveal** toggle to test mental visualization before seeing the answer.
-</details>
-
-<details>
-<summary><strong>📝 Smart Quiz System</strong></summary>
-
-*   **Clinical Vignettes**: Generates USMLE-style scenario questions.
-*   **Progress Navigator**: Visual bar to track answered, skipped, and current questions.
-*   **Review Mode**: Ability to **Skip** questions and review them later before submitting.
-*   **Detailed Explanations**: Immediate feedback with reasoning for correct/incorrect answers.
-</details>
-
-<details>
-<summary><strong>💡 Memory Aids</strong></summary>
-
-*   **Mnemonics**: Automatically generates clever acronyms and memory hooks for complex lists.
-*   **High-Yield Key Points**: Summarizes rapid-fire facts for quick review.
-</details>
+### 4. 🌍 Public Health & Community Impact
+Better trained doctors mean better patient outcomes.
+*   **Knowledge Sharing 🤝**: One-click sharing of topics and summaries facilitates peer-to-peer learning and mentorship.
+*   **Scalability**: As a web-based platform, this tool can be deployed globally to resource-constrained settings, providing top-tier medical education aids where textbooks are scarce.
+*   **Up-to-Date Info**: Integrated Google Search grounding ensures students aren't learning from outdated static text, but have access to the latest clinical guidelines.
 
 ---
 
 ## 🏗️ Architecture
-
-The application is built as a client-side Single Page Application (SPA) leveraging the latest **Google Gemini Models** for real-time content generation.
 
 ### 🧩 System Flow
 
@@ -54,52 +43,35 @@ graph TD
     UI -->|Request Content| Service[Gemini Service]
     
     subgraph "Google Gemini API"
-        Service -->|Prompt: Text & JSON Schema| Flash[Gemini 2.5 Flash]
-        Service -->|Prompt: Diagram Generation| Imagen[Gemini 2.5 Flash Image]
+        Service -->|Text Generation| Flash[Gemini 2.5 Flash]
+        Service -->|Diagram Generation| Imagen[Gemini 2.5 Flash Image]
+        Service -->|Audio Generation| TTS[Gemini 2.5 TTS]
     end
     
-    Flash -->|JSON: Sections, Mnemonics, Pairs| UI
-    Imagen -->|Base64 Image Data| UI
+    Flash -->|JSON Study Guide| UI
+    Imagen -->|Anatomy Diagrams| UI
+    TTS -->|Audio Summary| UI
     
-    UI -->|Render| Guide[Study Guide View]
-    Guide -->|Interactive| Game[Matching Game Component]
-    Guide -->|Interactive| Visual[Visual Recall Component]
-    
-    User -->|Start Quiz| Quiz[Quiz Modal]
-    Quiz -->|Request Vignettes| Flash
+    UI -->|Render| Guide[Study View]
+    Guide -->|Toggle| Zen[Zen Mode]
+    Guide -->|Play| Audio[Audio Player]
 ```
 
 ### 🛠️ Tech Stack
 
-*   **Frontend**: React 19, TypeScript
-*   **Styling**: Tailwind CSS
-*   **Icons**: Lucide React
-*   **AI Core**: `@google/genai` SDK
-*   **Models**: `gemini-2.5-flash` (Logic/Text), `gemini-2.5-flash-image` (Diagrams)
+*   **Frontend**: React 19, TypeScript, Tailwind CSS
+*   **AI Logic**: `gemini-2.5-flash` (Content & Quiz)
+*   **AI Vision**: `gemini-2.5-flash-image` (Anatomy Diagrams)
+*   **AI Voice**: `gemini-2.5-flash-preview-tts` (Accessibility)
+*   **Visualization**: Mermaid.js (Process Flows)
 
 ---
 
 ## 🚀 How to Use
 
-1.  **Select a Topic**: Choose from suggested "Clinical Anatomy" topics (e.g., Thoracic Surface Anatomy) or search for your own.
-2.  **Study Phase**:
-    *   Read the **Foundational** vs **Clinical** cards.
-    *   Play the **Matching Game** to lock in terminology.
-    *   Use **Visual Recall** to generate a diagram, hide it, and test your mental map.
-    *   Memorize the **Mnemonics**.
-3.  **Test Phase**:
-    *   Click "I'm Ready for the Quiz".
-    *   Answer clinical vignette questions.
-    *   Skip tough ones and review them at the end.
-    *   Check your score and explanations.
-
----
-
-## 🛡️ Design Philosophy
-
-We designed this for tired medical students and busy doctors.
-
-*   **No Fluff**: Direct "Key Points" and "Mnemonics".
-*   **Visual First**: If you can't imagine it, you can't treat it.
-*   **Gamified**: Don't just read—play. Matching terms makes rote memorization less painful.
-*   **Forgiving Quizzes**: Skip questions and come back. Learn from mistakes immediately.
+1.  **Search**: Enter any medical topic (e.g., "Circle of Willis").
+2.  **Listen**: Click the **Listen** button to hear an AI-narrated summary while on the go.
+3.  **Focus**: Toggle **Zen Mode** (top right) to block out distractions.
+4.  **Visualize**: Generate anatomical diagrams or sketch your own notes.
+5.  **Share**: Use the Share button to send the summary to study groups.
+6.  **Quiz**: Test your knowledge with AI-generated clinical vignettes.
