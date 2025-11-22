@@ -1,5 +1,4 @@
 import { GoogleGenAI, Type, Chat, Modality } from "@google/genai";
-import { GoogleGenAI, Type, Chat, Modality } from "@google/genai";
 import { StudyGuide, QuizSession } from '../types';
 
 const getAiClient = () => {
