@@ -93,7 +93,7 @@ const StudyContent: React.FC<StudyContentProps> = ({ data, onStartQuiz }) => {
     const textToShare = `Studying ${data.topic} on MedRecap AI.\n\nOverview: ${data.overview}`;
     try {
       await navigator.clipboard.writeText(textToShare);
-      alert("Topic summary copied to clipboard!");
+      alert("Topic summary copied to clipboard! Share it with your peers.");
     } catch (err) {
       console.error("Failed to copy:", err);
     }
@@ -136,22 +136,23 @@ const StudyContent: React.FC<StudyContentProps> = ({ data, onStartQuiz }) => {
       
       <div className={`mx-auto px-4 py-8 pb-40 relative ${zenMode ? 'max-w-4xl mt-8' : 'max-w-5xl'}`}>
         
-        {/* Utility Bar */}
-        <div className="flex justify-end space-x-2 mb-6 sticky top-4 z-40">
+        {/* Utility Bar - Always visible and prominent */}
+        <div className="flex justify-end space-x-3 mb-6 sticky top-4 z-40">
            <button 
              onClick={handleShare}
-             className="p-2 bg-white text-slate-600 rounded-full hover:bg-blue-50 hover:text-blue-600 shadow-sm border border-slate-200 transition-all"
+             className="flex items-center space-x-2 px-4 py-2 bg-white text-slate-600 rounded-full hover:bg-blue-50 hover:text-blue-600 shadow-md border border-slate-200 transition-all font-medium text-sm"
              title="Share with Peers (Public Health)"
            >
-             <Share2 className="w-5 h-5" />
+             <Share2 className="w-4 h-4" />
+             <span>Share</span>
            </button>
            <button 
              onClick={() => setZenMode(!zenMode)}
-             className={`p-2 rounded-full shadow-sm border transition-all flex items-center space-x-2 ${zenMode ? 'bg-teal-600 text-white border-teal-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-teal-50 hover:text-teal-600'}`}
+             className={`flex items-center space-x-2 px-4 py-2 rounded-full shadow-md border transition-all font-medium text-sm ${zenMode ? 'bg-teal-600 text-white border-teal-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-emerald-50 hover:text-emerald-600'}`}
              title="Toggle Zen Mode (Mental Wellness)"
            >
-             {zenMode ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
-             {zenMode && <span className="text-xs font-bold pr-2">Exit Zen</span>}
+             {zenMode ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+             <span>{zenMode ? 'Exit Zen' : 'Zen Mode'}</span>
            </button>
         </div>
 
@@ -166,7 +167,7 @@ const StudyContent: React.FC<StudyContentProps> = ({ data, onStartQuiz }) => {
           <h1 className="text-4xl sm:text-6xl font-extrabold text-slate-900 mb-6 tracking-tight">{data.topic}</h1>
           
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm border-l-4 border-l-teal-500 relative overflow-hidden">
-            <div className="flex justify-between items-start mb-2">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-4 gap-4">
               <h3 className="text-lg font-semibold text-slate-800 flex items-center">
                 <BookOpen className="w-5 h-5 mr-2 text-teal-600" />
                 Quick Overview
@@ -174,10 +175,10 @@ const StudyContent: React.FC<StudyContentProps> = ({ data, onStartQuiz }) => {
               <button
                 onClick={handlePlaySummary}
                 disabled={isAudioLoading}
-                className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                className={`flex items-center justify-center space-x-2 px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-sm ${
                   isPlayingAudio 
-                    ? 'bg-rose-100 text-rose-700 animate-pulse' 
-                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    ? 'bg-rose-100 text-rose-700 ring-2 ring-rose-200 animate-pulse' 
+                    : 'bg-slate-900 text-white hover:bg-slate-800'
                 }`}
                 title="Accessibility: Listen to Overview"
               >
@@ -186,7 +187,7 @@ const StudyContent: React.FC<StudyContentProps> = ({ data, onStartQuiz }) => {
                 ) : (
                   <Volume2 className="w-4 h-4" />
                 )}
-                <span>{isPlayingAudio ? 'Stop' : 'Listen'}</span>
+                <span>{isPlayingAudio ? 'Stop Audio' : 'Listen to Summary'}</span>
               </button>
             </div>
             <p className="text-slate-600 leading-relaxed text-lg">{data.overview}</p>
