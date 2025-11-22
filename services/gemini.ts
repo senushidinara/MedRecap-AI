@@ -295,7 +295,12 @@ export const generateQuizQuestions = async (topic: string, difficulty: 'Easy' | 
 
 export const generateAnatomyImage = async (topic: string, section: string): Promise<string> => {
   const ai = getAiClient();
-  
+
+  if (!ai) {
+    console.warn("API key not found. Image generation requires an API key.");
+    return ""; // Return empty string to indicate image generation unavailable
+  }
+
   return withRetry(async () => {
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash-image',
