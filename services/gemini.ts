@@ -138,12 +138,18 @@ export const createChatSession = (topic: string): Chat | null => {
 
 export const generateMedicalContent = async (topic: string): Promise<StudyGuide> => {
   const ai = getAiClient();
-  
+
+  // If no API key, return mock data
+  if (!ai) {
+    console.log("No API key found. Using mock study guide data.");
+    return generateMockStudyGuide(topic);
+  }
+
   // Structured output focused on Clinical Anatomy and Retention
   // Update: Explicitly requested flowcharts and bullet points to reduce density.
   const prompt = `
     Create a high-yield Clinical Anatomy and Medical review guide for: "${topic}".
-    
+
     The goal is to help doctors maximize retention of complex anatomical and physiological concepts by bridging "Basic Science" with "Clinical Relevance".
     Avoid dense walls of text. Use bullet points or short paragraphs where possible.
 
@@ -154,7 +160,7 @@ export const generateMedicalContent = async (topic: string): Promise<StudyGuide>
     4. Key Points: 2-3 rapid-fire facts.
     5. Mnemonics: A specific memory aid.
     6. Matching Pairs: 3-4 pairs for active recall.
-    
+
     Also provide a brief, high-level overview of the topic and 2 "Next Step" related topics for a predictive study pathway.
   `;
 
@@ -171,8 +177,8 @@ export const generateMedicalContent = async (topic: string): Promise<StudyGuide>
           properties: {
             topic: { type: Type.STRING },
             overview: { type: Type.STRING },
-            relatedTopics: { 
-              type: Type.ARRAY, 
+            relatedTopics: {
+              type: Type.ARRAY,
               items: { type: Type.STRING },
               description: "Predictive Pathway: Suggest 2 related topics the student should study next."
             },
@@ -184,9 +190,9 @@ export const generateMedicalContent = async (topic: string): Promise<StudyGuide>
                   title: { type: Type.STRING },
                   foundational: { type: Type.STRING },
                   clinical: { type: Type.STRING },
-                  mermaidChart: { 
-                    type: Type.STRING, 
-                    description: "Mermaid.js graph syntax (e.g. 'graph TD; A[\"Start\"]-->B[\"End\"]'). Use double quotes for node text." 
+                  mermaidChart: {
+                    type: Type.STRING,
+                    description: "Mermaid.js graph syntax (e.g. 'graph TD; A[\"Start\"]-->B[\"End\"]'). Use double quotes for node text."
                   },
                   keyPoints: {
                     type: Type.ARRAY,
