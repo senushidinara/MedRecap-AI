@@ -325,7 +325,12 @@ export const generateAnatomyImage = async (topic: string, section: string): Prom
 
 export const generateSpeech = async (text: string): Promise<string | undefined> => {
   const ai = getAiClient();
-  
+
+  if (!ai) {
+    console.warn("API key not found. Speech generation requires an API key.");
+    return undefined;
+  }
+
   return withRetry(async () => {
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash-preview-tts",
@@ -339,7 +344,7 @@ export const generateSpeech = async (text: string): Promise<string | undefined> 
         },
       },
     });
-    
+
     return response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
   });
 }
