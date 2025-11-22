@@ -117,12 +117,16 @@ const generateMockQuizSession = (topic: string): QuizSession => {
   };
 };
 
-export const createChatSession = (topic: string): Chat => {
+export const createChatSession = (topic: string): Chat | null => {
   const ai = getAiClient();
+  if (!ai) {
+    console.warn("API key not found. Chat feature requires an API key.");
+    return null;
+  }
   return ai.chats.create({
     model: "gemini-2.5-flash",
     config: {
-      systemInstruction: `You are an expert medical tutor helping a student study "${topic}". 
+      systemInstruction: `You are an expert medical tutor helping a student study "${topic}".
       Your goal is to explain complex concepts simply, provide analogies, and answer questions accurately.
       Use the Google Search tool to find up-to-date information, clinical guidelines, or recent papers if the user asks about them or if standard knowledge might be outdated.
       Always cite your sources if you use the search tool.
