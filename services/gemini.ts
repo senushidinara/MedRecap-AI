@@ -4,7 +4,7 @@ import { StudyGuide, QuizSession } from '../types';
 const getAiClient = () => {
   const apiKey = process.env.API_KEY;
   if (!apiKey) {
-    throw new Error("API Key not found in environment variables");
+    return null;
   }
   return new GoogleGenAI({ apiKey });
 };
