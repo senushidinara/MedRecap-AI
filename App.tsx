@@ -117,7 +117,7 @@ const App: React.FC = () => {
 
   // Apply accessibility classes to main wrapper
   const appClasses = `min-h-screen transition-colors duration-300 ${
-    settings.highContrast ? 'bg-white text-black' : 'bg-slate-50 text-slate-900'
+    settings.highContrast ? 'bg-white text-black' : 'bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 text-slate-900'
   } ${settings.largeText ? 'text-lg' : 'text-base'}`;
 
   return (
