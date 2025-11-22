@@ -72,7 +72,7 @@ const App: React.FC = () => {
       }
     } catch (error) {
       console.error("Failed to generate content:", error);
-      alert("Failed to generate study guide. Please check your API key or try again.");
+      alert("Failed to generate study guide. Please try again.");
     } finally {
       setIsLoading(false);
     }
